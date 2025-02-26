@@ -1,13 +1,14 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const say = require("say"); // Import once
+const say = require("say");
+require("dotenv").config(); // Load environment variables
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*", // Allow all origins
+        origin: "*",
         methods: ["GET", "POST"]
     }
 });
@@ -18,14 +19,16 @@ io.on("connection", (socket) => {
     socket.on("message", (msg) => {
         console.log("Message received:", msg);
 
-        // Speak the received message
+        // Speak message with proper error handling
         say.speak(msg, undefined, 1, (err) => {
             if (err) {
                 console.error("Error speaking:", err);
+                return;
             }
+            console.log("Message spoken successfully.");
         });
 
-        io.emit("message", msg); // Broadcast message to all clients
+        io.emit("message", msg);
     });
 
     socket.on("disconnect", () => {
@@ -34,7 +37,7 @@ io.on("connection", (socket) => {
 });
 
 // Use dynamic port for deployment
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
