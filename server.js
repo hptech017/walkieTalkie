@@ -1,6 +1,7 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
+const say = require("say"); // Import once
 
 const app = express();
 const server = http.createServer(app);
@@ -11,25 +12,20 @@ const io = new Server(server, {
     }
 });
 
-
 io.on("connection", (socket) => {
     console.log("A user connected");
 
     socket.on("message", (msg) => {
         console.log("Message received:", msg);
-        const say = require('say');
 
-// Speak the text
-say.speak(msg);
+        // Speak the received message
+        say.speak(msg, undefined, 1, (err) => {
+            if (err) {
+                console.error("Error speaking:", err);
+            }
+        });
 
-// Speak with a different speed
-// say.speak("Hello my name is Harshit pandey", "Microsoft David Desktop", 1);
-
-// Stop speaking
-setTimeout(() => {
-    say.stop();
-}, 3000);
-        io.emit("message", msg); // Send the message to all clients
+        io.emit("message", msg); // Broadcast message to all clients
     });
 
     socket.on("disconnect", () => {
@@ -37,7 +33,8 @@ setTimeout(() => {
     });
 });
 
-
-server.listen(3000, () => {
-    console.log("Server is running on http://localhost:3000");
+// Use dynamic port for deployment
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
