@@ -134,12 +134,12 @@
             }
         }
 
-        socket.on("message", (msg) => {
+       
+ socket.on("message", ({userId,msg}) => {
             const li = document.createElement("li");
-            li.textContent = msg;
+            li.textContent = `User ${userId}: ${msg}`;
             document.getElementById("messages").appendChild(li);
         });
-
         // Create floating particles
         function createParticles() {
             for (let i = 0; i < 15; i++) {

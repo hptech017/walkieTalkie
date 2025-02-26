@@ -13,28 +13,35 @@ const io = new Server(server, {
     }
 });
 
-io.on("connection", (socket) => {
-    console.log("A user connected");
 
-    socket.on("message", (msg) => {
-        console.log("Message received:", msg);
+ 
 
-        // Speak message with proper error handling
-        say.speak(msg, undefined, 1, (err) => {
-            if (err) {
-                console.error("Error speaking:", err);
-                return;
-            }
-            console.log("Message spoken successfully.");
+    let userCount=0;
+    io.on("connection", (socket) => {
+        userCount++;
+        const userId=userCount;
+        console.log(`user ${userId} connected`);
+    
+        socket.on("message", (msg) => {
+            console.log("Message received:", msg);
+    
+            // Speak message with proper error handling
+            say.speak(msg, undefined, 1, (err) => {
+                if (err) {
+                    console.error("Error speaking:", err);
+                    return;
+                }
+                console.log("Message spoken successfully.");
+            });
+    
+            io.emit("message", {userId,msg});
         });
-
-        io.emit("message", msg);
+    
+        socket.on("disconnect", () => {
+            console.log("A user disconnected");
+        });
     });
-
-    socket.on("disconnect", () => {
-        console.log("A user disconnected");
-    });
-});
+  
 
 // Use dynamic port for deployment
 const PORT = 3000;
